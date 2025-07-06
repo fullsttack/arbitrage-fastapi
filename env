@@ -1,11 +1,10 @@
-
 # Django Settings
 DEBUG=True
-SECRET_KEY=your-secret-key-here
+SECRET_KEY=your-secret-key-here-generate-a-strong-one
 ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Database
-DATABASE_URL=postgres://user:password@localhost:5432/crypto_arbitrage
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/crypto_arbitrage
 DB_NAME=crypto_arbitrage
 DB_USER=postgres
 DB_PASSWORD=postgres
@@ -28,11 +27,11 @@ WALLEX_API_URL=https://api.wallex.ir
 # Exchange API Keys - Ramzinex
 RAMZINEX_API_KEY=your-ramzinex-api-key
 RAMZINEX_SECRET_KEY=your-ramzinex-secret-key
-RAMZINEX_API_URL=https://api.ramzinex.com
+RAMZINEX_API_URL=https://publicapi.ramzinex.com
 
 # Trading Settings
 AUTO_TRADE_ENABLED=False
-MIN_ARBITRAGE_THRESHOLD=0.5  # Minimum profit percentage
+MIN_ARBITRAGE_THRESHOLD=0.5
 MAX_TRADE_AMOUNT_USDT=100
 MAX_TRADE_AMOUNT_RLS=10000000
 
@@ -44,7 +43,7 @@ RAMZINEX_RATE_LIMIT=60
 # Monitoring
 ENABLE_MONITORING=True
 ALERT_EMAIL=admin@example.com
-ALERT_THRESHOLD=2.0  # Alert when profit > 2%
+ALERT_THRESHOLD=2.0
 
 # CORS
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
@@ -54,5 +53,5 @@ LOG_LEVEL=INFO
 LOG_FILE=logs/crypto_arbitrage.log
 
 # Scheduler
-PRICE_UPDATE_INTERVAL=5  # seconds
-ARBITRAGE_CHECK_INTERVAL=10  # seconds
+PRICE_UPDATE_INTERVAL=5
+ARBITRAGE_CHECK_INTERVAL=10
