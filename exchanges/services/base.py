@@ -8,9 +8,9 @@ import httpx
 from django.core.cache import cache
 from django.utils import timezone
 
-from apps.core.exceptions import ExchangeAPIError, RateLimitError
-from apps.core.models import Exchange, ExchangeTradingPair
-from apps.exchanges.models import MarketTicker, OrderBook, OrderBookEntry
+from core.exceptions import ExchangeAPIError, RateLimitError
+from core.models import Exchange, ExchangeTradingPair
+from exchanges.models import MarketTicker, OrderBook, OrderBookEntry
 
 logger = logging.getLogger(__name__)
 
