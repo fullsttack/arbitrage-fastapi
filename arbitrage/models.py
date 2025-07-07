@@ -1,5 +1,5 @@
 """
-Models for arbitrage opportunities and related data.
+Enhanced models for multi-exchange arbitrage opportunities and strategies.
 """
 
 from decimal import Decimal
@@ -100,20 +100,198 @@ class ArbitrageOpportunity(UUIDModel, TimestampedModel):
         return self.estimated_profit
 
 
+class MultiExchangeArbitrageStrategy(UUIDModel, TimestampedModel):
+    """
+    Model representing a complex multi-exchange arbitrage strategy.
+    """
+    
+    STATUS_CHOICES = [
+        ("detected", "Detected"),
+        ("validating", "Validating"),
+        ("executing", "Executing"),
+        ("completed", "Completed"),
+        ("failed", "Failed"),
+        ("expired", "Expired"),
+    ]
+    
+    STRATEGY_TYPE_CHOICES = [
+        ("one_to_many", "One-to-Many (Buy on one, sell on multiple)"),
+        ("many_to_one", "Many-to-One (Buy on multiple, sell on one)"),
+        ("complex", "Complex Multi-Exchange"),
+        ("triangular", "Triangular Arbitrage"),
+    ]
+    
+    trading_pair = models.ForeignKey(
+        TradingPair, on_delete=models.CASCADE, related_name="multi_arbitrage_strategies"
+    )
+    
+    # Strategy details
+    strategy_type = models.CharField(max_length=20, choices=STRATEGY_TYPE_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="detected")
+    
+    # Buy actions (can be multiple for complex strategies)
+    buy_actions = models.JSONField(
+        help_text="List of buy actions: [{'exchange': 'nobitex', 'amount': 1.0, 'price': 40000}, ...]"
+    )
+    
+    # Sell actions (can be multiple)
+    sell_actions = models.JSONField(
+        help_text="List of sell actions: [{'exchange': 'wallex', 'amount': 0.5, 'price': 40800}, ...]"
+    )
+    
+    # Financial calculations
+    total_buy_amount = models.DecimalField(max_digits=20, decimal_places=8)
+    total_sell_amount = models.DecimalField(max_digits=20, decimal_places=8)
+    total_buy_cost = models.DecimalField(max_digits=20, decimal_places=8)
+    total_sell_revenue = models.DecimalField(max_digits=20, decimal_places=8)
+    estimated_profit = models.DecimalField(max_digits=20, decimal_places=8)
+    profit_percentage = models.DecimalField(max_digits=10, decimal_places=4)
+    total_fees = models.DecimalField(max_digits=20, decimal_places=8)
+    
+    # Risk metrics
+    complexity_score = models.IntegerField(help_text="Number of exchanges involved")
+    risk_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    max_execution_time = models.IntegerField(help_text="Maximum execution time in seconds")
+    
+    # Timing
+    expires_at = models.DateTimeField()
+    execution_started_at = models.DateTimeField(null=True, blank=True)
+    execution_completed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Results
+    actual_profit = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
+    actual_profit_percentage = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
+    
+    # Market conditions at detection
+    market_snapshot = models.JSONField(default=dict, blank=True)
+    
+    class Meta:
+        verbose_name = "Multi-Exchange Arbitrage Strategy"
+        verbose_name_plural = "Multi-Exchange Arbitrage Strategies"
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["status", "-created_at"]),
+            models.Index(fields=["trading_pair", "-created_at"]),
+            models.Index(fields=["-profit_percentage"]),
+            models.Index(fields=["strategy_type", "-created_at"]),
+        ]
+    
+    def __str__(self):
+        return f"{self.trading_pair.symbol} - {self.strategy_type} - {self.profit_percentage}%"
+    
+    def get_involved_exchanges(self):
+        """Get all exchanges involved in this strategy."""
+        exchanges = set()
+        for action in self.buy_actions:
+            exchanges.add(action['exchange'])
+        for action in self.sell_actions:
+            exchanges.add(action['exchange'])
+        return list(exchanges)
+    
+    def calculate_complexity_score(self):
+        """Calculate complexity based on number of exchanges and actions."""
+        total_actions = len(self.buy_actions) + len(self.sell_actions)
+        unique_exchanges = len(self.get_involved_exchanges())
+        self.complexity_score = total_actions + unique_exchanges
+        return self.complexity_score
+
+
+class MultiExchangeExecution(UUIDModel, TimestampedModel):
+    """
+    Model tracking individual exchange executions within a multi-exchange strategy.
+    """
+    
+    EXECUTION_STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("order_placed", "Order Placed"),
+        ("partially_filled", "Partially Filled"),
+        ("filled", "Filled"),
+        ("failed", "Failed"),
+        ("cancelled", "Cancelled"),
+        ("expired", "Expired"),
+    ]
+    
+    strategy = models.ForeignKey(
+        MultiExchangeArbitrageStrategy, 
+        on_delete=models.CASCADE, 
+        related_name="executions"
+    )
+    exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
+    
+    # Action details
+    action_type = models.CharField(max_length=10, choices=[("BUY", "Buy"), ("SELL", "Sell")])
+    target_amount = models.DecimalField(max_digits=20, decimal_places=8)
+    target_price = models.DecimalField(max_digits=20, decimal_places=8)
+    
+    # Order details
+    exchange_order_id = models.CharField(max_length=255, blank=True)
+    order_type = models.CharField(max_length=20, default="LIMIT")
+    
+    # Execution results
+    filled_amount = models.DecimalField(max_digits=20, decimal_places=8, default=0)
+    average_price = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=True)
+    total_fee = models.DecimalField(max_digits=20, decimal_places=8, default=0)
+    
+    # Status tracking
+    status = models.CharField(max_length=20, choices=EXECUTION_STATUS_CHOICES, default="pending")
+    error_message = models.TextField(blank=True)
+    retry_count = models.IntegerField(default=0)
+    
+    # Timing
+    order_placed_at = models.DateTimeField(null=True, blank=True)
+    first_fill_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Performance metrics
+    execution_latency = models.FloatField(null=True, blank=True, help_text="Time to place order in seconds")
+    fill_latency = models.FloatField(null=True, blank=True, help_text="Time to complete fill in seconds")
+    price_slippage = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Multi-Exchange Execution"
+        verbose_name_plural = "Multi-Exchange Executions"
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["strategy", "status"]),
+            models.Index(fields=["exchange", "-created_at"]),
+        ]
+    
+    def __str__(self):
+        return f"{self.action_type} {self.target_amount} {self.strategy.trading_pair.symbol} on {self.exchange.name}"
+    
+    @property
+    def remaining_amount(self):
+        return self.target_amount - self.filled_amount
+    
+    @property
+    def fill_percentage(self):
+        if self.target_amount > 0:
+            return (self.filled_amount / self.target_amount) * 100
+        return 0
+    
+    def calculate_slippage(self):
+        """Calculate price slippage compared to target price."""
+        if self.average_price and self.target_price:
+            self.price_slippage = ((self.average_price - self.target_price) / self.target_price) * 100
+            if self.action_type == "SELL":
+                self.price_slippage = -self.price_slippage  # Negative slippage is good for sells
+        return self.price_slippage
+
+
 class ArbitrageConfig(TimestampedModel):
     """
-    Model for storing arbitrage configuration per user.
+    Enhanced model for storing arbitrage configuration per user.
     """
 
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="arbitrage_config"
     )
     
-    # Trading settings
+    # Basic trading settings
     is_active = models.BooleanField(default=True)
     auto_trade = models.BooleanField(default=False)
     
-    # Thresholds
+    # Profit thresholds
     min_profit_percentage = models.DecimalField(
         max_digits=5, decimal_places=2, default=0.5,
         help_text="Minimum profit percentage to consider"
@@ -123,12 +301,41 @@ class ArbitrageConfig(TimestampedModel):
         help_text="Minimum profit amount in quote currency"
     )
     
+    # Multi-exchange settings
+    enable_multi_exchange = models.BooleanField(
+        default=True,
+        help_text="Enable complex multi-exchange arbitrage strategies"
+    )
+    max_exchanges_per_strategy = models.IntegerField(
+        default=3,
+        help_text="Maximum number of exchanges in a single strategy"
+    )
+    min_profit_per_exchange = models.DecimalField(
+        max_digits=5, decimal_places=2, default=0.3,
+        help_text="Minimum profit percentage per exchange action"
+    )
+    
+    # Allocation strategy
+    ALLOCATION_CHOICES = [
+        ("equal", "Equal Distribution"),
+        ("liquidity_weighted", "Liquidity Weighted"),
+        ("profit_weighted", "Profit Weighted"),
+        ("risk_adjusted", "Risk Adjusted"),
+    ]
+    allocation_strategy = models.CharField(
+        max_length=20, choices=ALLOCATION_CHOICES, default="risk_adjusted"
+    )
+    
     # Trading limits
     max_trade_amount = models.JSONField(
         default=dict, help_text="Maximum trade amount per currency"
     )
     daily_trade_limit = models.JSONField(
         default=dict, help_text="Daily trade limit per currency"
+    )
+    max_allocation_per_exchange = models.DecimalField(
+        max_digits=5, decimal_places=2, default=50.0,
+        help_text="Maximum percentage allocation per exchange"
     )
     
     # Risk management
@@ -140,11 +347,37 @@ class ArbitrageConfig(TimestampedModel):
         max_digits=5, decimal_places=2, default=2,
         help_text="Stop loss percentage"
     )
+    require_simultaneous_execution = models.BooleanField(
+        default=True,
+        help_text="Require all orders to be placed simultaneously"
+    )
+    max_execution_time = models.IntegerField(
+        default=30,
+        help_text="Maximum execution time in seconds"
+    )
+    
+    # Advanced settings
+    enable_triangular_arbitrage = models.BooleanField(
+        default=False,
+        help_text="Enable triangular arbitrage strategies"
+    )
+    min_liquidity_ratio = models.DecimalField(
+        max_digits=5, decimal_places=2, default=10.0,
+        help_text="Minimum liquidity as percentage of order size"
+    )
+    max_slippage_tolerance = models.DecimalField(
+        max_digits=5, decimal_places=2, default=0.5,
+        help_text="Maximum acceptable slippage percentage"
+    )
     
     # Notifications
     enable_notifications = models.BooleanField(default=True)
     notification_channels = models.JSONField(
         default=list, help_text="List of notification channels (email, sms, etc.)"
+    )
+    notify_on_high_profit = models.DecimalField(
+        max_digits=5, decimal_places=2, default=5.0,
+        help_text="Notify when profit exceeds this percentage"
     )
     
     # Exchange preferences
@@ -154,14 +387,22 @@ class ArbitrageConfig(TimestampedModel):
     enabled_pairs = models.ManyToManyField(
         TradingPair, related_name="arbitrage_configs", blank=True
     )
+    exchange_reliability_weights = models.JSONField(
+        default=dict,
+        help_text="Reliability weights for exchanges (0.0 to 1.0)"
+    )
     
-    # Advanced settings
+    # Order execution preferences
     use_market_orders = models.BooleanField(
         default=False, help_text="Use market orders instead of limit orders"
     )
     slippage_tolerance = models.DecimalField(
         max_digits=5, decimal_places=2, default=0.5,
         help_text="Maximum acceptable slippage percentage"
+    )
+    order_timeout = models.IntegerField(
+        default=60,
+        help_text="Order timeout in seconds"
     )
 
     class Meta:
@@ -174,7 +415,7 @@ class ArbitrageConfig(TimestampedModel):
 
 class ArbitrageExecution(UUIDModel, TimestampedModel):
     """
-    Model for tracking arbitrage execution details.
+    Model for tracking arbitrage execution details (backward compatibility).
     """
 
     EXECUTION_STATUS = [
@@ -193,6 +434,15 @@ class ArbitrageExecution(UUIDModel, TimestampedModel):
     )
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="arbitrage_executions"
+    )
+    
+    # Link to multi-exchange strategy if applicable
+    multi_strategy = models.ForeignKey(
+        MultiExchangeArbitrageStrategy,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="simple_executions"
     )
     
     # Execution status
@@ -274,11 +524,15 @@ class ArbitrageAlert(TimestampedModel):
 
     ALERT_TYPE_CHOICES = [
         ("opportunity", "Opportunity Detected"),
+        ("multi_opportunity", "Multi-Exchange Opportunity Detected"),
         ("execution_started", "Execution Started"),
         ("execution_completed", "Execution Completed"),
         ("execution_failed", "Execution Failed"),
         ("high_profit", "High Profit Opportunity"),
         ("market_anomaly", "Market Anomaly"),
+        ("strategy_success", "Strategy Completed Successfully"),
+        ("strategy_failed", "Strategy Failed"),
+        ("partial_fill", "Partial Fill Warning"),
     ]
 
     user = models.ForeignKey(
@@ -286,6 +540,13 @@ class ArbitrageAlert(TimestampedModel):
     )
     opportunity = models.ForeignKey(
         ArbitrageOpportunity,
+        on_delete=models.CASCADE,
+        related_name="alerts",
+        null=True,
+        blank=True,
+    )
+    multi_strategy = models.ForeignKey(
+        MultiExchangeArbitrageStrategy,
         on_delete=models.CASCADE,
         related_name="alerts",
         null=True,
