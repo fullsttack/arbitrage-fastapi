@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "apscheduler>=3.11.0",
+    "asgiref>=3.9.0",
     "black>=25.1.0",
     "celery>=5.5.3",
     "cryptography>=44.0.0",
@@ -15,6 +16,7 @@ dependencies = [
     "django-extensions>=4.1",
     "django-ninja>=1.4.3",
     "django-ratelimit>=4.1.0",
+    "django-redis>=6.0.0",
     "django-unfold>=0.62.0",
     "flake8>=7.3.0",
     "gunicorn>=23.0.0",
