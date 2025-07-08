@@ -52,6 +52,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "core.middleware.SecurityHeadersMiddleware",  # NEW: Enhanced security
     "core.middleware.RateLimitMiddleware",  # NEW: API rate limiting
     "django.middleware.common.CommonMiddleware",
@@ -84,26 +85,34 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-# FIXED: Database with connection pooling and optimization
+# Database configuration - Using SQLite for development
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME", default="crypto_arbitrage"),
-        "USER": config("DB_USER", default="postgres"),
-        "PASSWORD": config("DB_PASSWORD", default="postgres"),
-        "HOST": config("DB_HOST", default="localhost"),
-        "PORT": config("DB_PORT", default="5432"),
-        "CONN_MAX_AGE": 300,  # FIXED: Reduced from 600 for faster failover
-        "OPTIONS": {
-            "MAX_CONNS": 20,
-            "connect_timeout": 10,
-            "options": "-c default_transaction_isolation=read_committed"
-        },
-        "TEST": {
-            "NAME": "test_crypto_arbitrage",
-        },
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# PostgreSQL configuration (commented out for now)
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": config("DB_NAME", default="crypto_arbitrage"),
+#         "USER": config("DB_USER", default="postgres"),
+#         "PASSWORD": config("DB_PASSWORD", default="postgres"),
+#         "HOST": config("DB_HOST", default="localhost"),
+#         "PORT": config("DB_PORT", default="5432"),
+#         "CONN_MAX_AGE": 300,  # FIXED: Reduced from 600 for faster failover
+#         "OPTIONS": {
+#             "MAX_CONNS": 20,
+#             "connect_timeout": 10,
+#             "options": "-c default_transaction_isolation=read_committed"
+#         },
+#         "TEST": {
+#             "NAME": "test_crypto_arbitrage",
+#         },
+#     }
+# }
 
 # Redis configuration with optimization
 REDIS_URL = config("REDIS_URL", default="redis://localhost:6379/0")

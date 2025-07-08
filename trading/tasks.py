@@ -2,6 +2,7 @@ import asyncio
 import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import List
 
 from celery import shared_task
 from django.db import transaction

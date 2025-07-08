@@ -1,7 +1,7 @@
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from ninja import Schema
@@ -40,8 +40,8 @@ class CreateOrderSchema(Schema):
     
     exchange: str
     trading_pair: str
-    order_type: str = Field(..., regex="^(MARKET|LIMIT|STOP|STOP_LIMIT)$")
-    side: str = Field(..., regex="^(BUY|SELL)$")
+    order_type: str = Field(..., pattern="^(MARKET|LIMIT|STOP|STOP_LIMIT)$")
+    side: str = Field(..., pattern="^(BUY|SELL)$")
     amount: Decimal = Field(..., gt=0)
     price: Optional[Decimal] = Field(None, gt=0)
     stop_price: Optional[Decimal] = Field(None, gt=0)
@@ -158,7 +158,7 @@ class OpenPositionSchema(Schema):
     
     exchange: str
     trading_pair: str
-    side: str = Field(..., regex="^(LONG|SHORT)$")
+    side: str = Field(..., pattern="^(LONG|SHORT)$")
     amount: Decimal = Field(..., gt=0)
     entry_price: Optional[Decimal] = Field(None, gt=0)
     stop_loss_price: Optional[Decimal] = Field(None, gt=0)
@@ -224,7 +224,7 @@ class PortfolioSummarySchema(Schema):
     total_cost: Decimal
     total_pnl: Decimal
     pnl_percentage: Decimal
-    positions: List[Dict[str, any]]
+    positions: List[Dict[str, Any]]
     balances: Dict[str, Dict[str, Decimal]]
     open_orders_value: Decimal
     last_updated: datetime
@@ -272,5 +272,5 @@ class BacktestResultSchema(Schema):
     win_rate: Decimal
     max_drawdown: Decimal
     sharpe_ratio: Optional[Decimal] = None
-    trades: List[Dict[str, any]]
-    equity_curve: List[Dict[str, any]]
+    trades: List[Dict[str, Any]]
+    equity_curve: List[Dict[str, Any]]

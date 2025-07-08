@@ -493,7 +493,6 @@ app.conf.update(
     # ERROR handling
     task_ignore_result=False,
     task_store_errors_even_if_ignored=True,
-    task_reject_on_worker_lost=True,
     
     # SECURITY
     worker_hijack_root_logger=False,

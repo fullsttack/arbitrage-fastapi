@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from django.db import models
 from django.utils import timezone
@@ -90,7 +90,7 @@ class InsightSchema(Schema):
     insight_type: str
     title: str
     description: str
-    value: any
+    value: Any
     trend: str = None  # "up", "down", "stable"
     recommendation: str = None
 

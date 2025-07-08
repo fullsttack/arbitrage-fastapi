@@ -4,7 +4,7 @@ Enhanced Pydantic schemas for multi-exchange arbitrage data validation.
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from ninja import Schema
@@ -311,7 +311,7 @@ class ArbitrageStatsSchema(Schema):
     total_opportunities_executed: int
     total_profit: Decimal
     active_opportunities: int
-    top_profitable_pairs: List[Dict[str, any]]
+    top_profitable_pairs: List[Dict[str, Any]]
     time_period: str
 
 
@@ -371,7 +371,7 @@ class RiskAssessmentSchema(Schema):
     strategy_id: UUID
     strategy_type: str
     risk_score: Decimal = Field(..., ge=0, le=100)
-    risk_factors: List[Dict[str, any]]
+    risk_factors: List[Dict[str, Any]]
     recommended_allocation: Decimal
     max_recommended_amount: Decimal
     warning_messages: List[str] = []
@@ -425,13 +425,13 @@ class BacktestResultSchema(Schema):
     volatility: Optional[Decimal] = None
     
     # Time series data
-    equity_curve: List[Dict[str, any]]
-    monthly_returns: List[Dict[str, any]]
+    equity_curve: List[Dict[str, Any]]
+    monthly_returns: List[Dict[str, Any]]
     strategy_breakdown: List[StrategyPerformanceSchema]
     
     # Execution details
-    execution_summary: Dict[str, any]
-    risk_analysis: Dict[str, any]
+    execution_summary: Dict[str, Any]
+    risk_analysis: Dict[str, Any]
 
 
 class OptimizationRequestSchema(Schema):
@@ -441,7 +441,7 @@ class OptimizationRequestSchema(Schema):
     trading_pairs: List[str]
     exchanges: List[str]
     optimization_target: str = Field(default="profit")  # profit, risk_adjusted, sharpe
-    constraints: Dict[str, any] = {}
+    constraints: Dict[str, Any] = {}
     parameter_ranges: Dict[str, Dict[str, float]] = {}
     
     @validator("optimization_target")
@@ -458,7 +458,7 @@ class OptimizationResultSchema(Schema):
     optimal_config: ArbitrageConfigSchema
     expected_performance: BacktestResultSchema
     parameter_sensitivity: Dict[str, List[Dict[str, float]]]
-    optimization_summary: Dict[str, any]
+    optimization_summary: Dict[str, Any]
 
 
 class RealTimeMonitoringSchema(Schema):
@@ -466,12 +466,12 @@ class RealTimeMonitoringSchema(Schema):
     
     strategy_id: UUID
     current_status: str
-    execution_progress: Dict[str, any]
+    execution_progress: Dict[str, Any]
     current_profit: Decimal
     estimated_completion: Optional[datetime] = None
-    active_orders: List[Dict[str, any]]
+    active_orders: List[Dict[str, Any]]
     risk_alerts: List[str] = []
-    performance_metrics: Dict[str, any]
+    performance_metrics: Dict[str, Any]
     last_update: datetime
 
 
@@ -480,7 +480,7 @@ class AlertRuleSchema(Schema):
     
     rule_name: str
     rule_type: str  # profit_threshold, volume_threshold, spread_threshold, etc.
-    conditions: Dict[str, any]
+    conditions: Dict[str, Any]
     actions: List[str]  # email, sms, webhook, auto_execute
     is_active: bool = True
     trading_pairs: Optional[List[str]] = None

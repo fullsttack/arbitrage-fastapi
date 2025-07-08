@@ -128,8 +128,8 @@ class OrderRequestSchema(Schema):
     
     exchange: str
     symbol: str
-    side: str = Field(..., regex="^(buy|sell|BUY|SELL)$") # type: ignore 
-    order_type: str = Field(..., regex="^(market|limit|MARKET|LIMIT)$") # type: ignore
+    side: str = Field(..., pattern="^(buy|sell|BUY|SELL)$") # type: ignore
+    order_type: str = Field(..., pattern="^(market|limit|MARKET|LIMIT)$") # type: ignore
     amount: Decimal = Field(..., gt=0)
     price: Optional[Decimal] = Field(None, gt=0)
     
