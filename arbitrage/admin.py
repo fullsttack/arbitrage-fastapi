@@ -66,7 +66,7 @@ class ArbitrageOpportunityAdmin(ModelAdmin):
             "fields": [
                 ('available_buy_amount', 'available_sell_amount'),
                 ('executed_amount', 'actual_profit'),
-                ('expires_at', 'executed_at'),
+                ('expires_at',),
             ]
         }),
         ("Technical Details", {
@@ -309,10 +309,9 @@ class ArbitrageExecutionAdmin(ModelAdmin):
     
     @display(description="Execution Time")
     def execution_time(self, obj):
-        if obj.executed_at and obj.created_at:
-            duration = obj.executed_at - obj.created_at
+        if obj.completed_at and obj.created_at:
+            duration = obj.completed_at - obj.created_at
             seconds = duration.total_seconds()
-            
             if seconds < 60:
                 return f"{seconds:.1f}s"
             else:

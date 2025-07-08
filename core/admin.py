@@ -110,7 +110,7 @@ class ExchangeTradingPairInline(TabularInline):
     
     model = ExchangeTradingPair
     extra = 0
-    fields = ['trading_pair', 'exchange_symbol', 'is_active', 'min_trade_amount']
+    fields = ['trading_pair', 'exchange_symbol', 'is_active', 'min_order_size']
     raw_id_fields = ['trading_pair']
 
 
@@ -172,21 +172,25 @@ class ExchangeAdmin(ModelAdmin):
     @display(description="Reliability", ordering="reliability_score")
     def reliability_score_display(self, obj):
         score = obj.reliability_score
-        if score >= 95:
-            color = "green"
-        elif score >= 85:
-            color = "yellow"
-        else:
-            color = "red"
-        
+        try:
+            score = float(score)
+        except (TypeError, ValueError):
+            return format_html('<span class="text-gray-500">N/A</span>')
+        color = str(
+            "green" if score >= 95 else "yellow" if score >= 85 else "red"
+        )
+        try:
+            score_str = f"{score:.1f}"
+        except Exception:
+            score_str = str(score)
         return format_html(
             '<div class="flex items-center">'
             '<div class="w-16 bg-gray-200 rounded-full h-2 mr-2">'
             '<div class="bg-{}-600 h-2 rounded-full" style="width: {}%"></div>'
             '</div>'
-            '<span class="text-{}-800 font-medium">{:.1f}%</span>'
+            '<span class="text-{}-800 font-medium">{}%</span>'
             '</div>',
-            color, score, color, score
+            color, score, color, score_str
         )
     
     @display(description="Status", boolean=True)
@@ -195,7 +199,7 @@ class ExchangeAdmin(ModelAdmin):
     
     @display(description="Trading Pairs")
     def trading_pairs_count(self, obj):
-        count = obj.exchange_trading_pairs.filter(is_active=True).count()
+        count = obj.trading_pairs.filter(is_active=True).count()
         return f"{count} pairs"
 
 
@@ -248,7 +252,6 @@ class APICredentialAdmin(ModelAdmin):
         }),
         ("API Credentials", {
             "fields": [
-                ('api_key', 'api_secret'),
                 ('encrypted_api_key', 'encrypted_api_secret'),
             ],
             "description": "Credentials are automatically encrypted when saved."

@@ -1,0 +1,201 @@
+/* Custom styles for Django Unfold Admin */
+
+/* Logo and branding enhancements */
+.unfold-sidebar-brand {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+/* Enhanced dashboard cards */
+.dashboard-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Status indicators */
+.status-online {
+    color: #10b981;
+}
+
+.status-offline {
+    color: #ef4444;
+}
+
+.status-warning {
+    color: #f59e0b;
+}
+
+/* Profit/Loss indicators */
+.profit-positive {
+    color: #10b981;
+}
+
+.profit-negative {
+    color: #ef4444;
+}
+
+/* Exchange health indicators */
+.exchange-health-excellent {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.exchange-health-good {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.exchange-health-poor {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Arbitrage opportunity highlights */
+.opportunity-high-profit {
+    border-left: 4px solid #10b981;
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+.opportunity-medium-profit {
+    border-left: 4px solid #f59e0b;
+    background-color: rgba(245, 158, 11, 0.05);
+}
+
+.opportunity-low-profit {
+    border-left: 4px solid #6b7280;
+    background-color: rgba(107, 114, 128, 0.05);
+}
+
+/* Trading pair symbols */
+.trading-pair-symbol {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+/* Price displays */
+.price-display {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-weight: 600;
+}
+
+/* Responsive enhancements for mobile */
+@media (max-width: 768px) {
+    .dashboard-card {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .price-display {
+        font-size: 0.85em;
+    }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+    .dashboard-card {
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        border: 1px solid rgba(75, 85, 99, 0.3);
+    }
+    
+    .exchange-health-excellent {
+        background-color: rgba(16, 185, 129, 0.2);
+        color: #a7f3d0;
+    }
+    
+    .exchange-health-good {
+        background-color: rgba(245, 158, 11, 0.2);
+        color: #fde68a;
+    }
+    
+    .exchange-health-poor {
+        background-color: rgba(239, 68, 68, 0.2);
+        color: #fecaca;
+    }
+}
+
+/* Animation for real-time updates */
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.pulse-positive {
+    animation: pulse-green 2s infinite;
+}
+
+.pulse-negative {
+    animation: pulse-red 2s infinite;
+}
+
+/* Progress bars for execution status */
+.execution-progress {
+    width: 100%;
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.execution-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    transition: width 0.3s ease;
+}
+
+/* Enhanced table styling */
+.admin-table-enhanced {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.admin-table-enhanced th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: #374151;
+    padding: 0.75rem 1rem;
+}
+
+.admin-table-enhanced td {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Custom scrollbar for lists */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

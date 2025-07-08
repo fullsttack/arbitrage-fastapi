@@ -14,8 +14,8 @@ class TradeInline(TabularInline):
     
     model = Trade
     extra = 0
-    readonly_fields = ['executed_at', 'fee']
-    fields = ['executed_amount', 'executed_price', 'fee', 'executed_at']
+    readonly_fields = ['fee']
+    fields = ['fee']
 
 
 @admin.register(Order)
@@ -110,12 +110,11 @@ class TradeAdmin(ModelAdmin):
     """Trade execution tracking."""
     
     list_display = [
-        'trade_info', 'side_indicator', 'executed_amount_display',
-        'executed_price_display', 'fee_display', 'executed_at'
+        'trade_info', 'side_indicator', 'fee_display'
     ]
-    list_filter = ['order__side', 'order__exchange', 'executed_at']
+    list_filter = ['order__side', 'order__exchange']
     search_fields = ['order__trading_pair__symbol', 'trade_id']
-    readonly_fields = ['executed_at', 'metadata']
+    readonly_fields = ['metadata']
     
     # Unfold settings
     list_fullwidth = True
@@ -142,20 +141,6 @@ class TradeAdmin(ModelAdmin):
             return format_html(
                 '<span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">SELL</span>'
             )
-    
-    @display(description="Amount", ordering="executed_amount")
-    def executed_amount_display(self, obj):
-        return format_html(
-            '<span class="font-mono">{:.6f}</span>',
-            obj.executed_amount
-        )
-    
-    @display(description="Price", ordering="executed_price")
-    def executed_price_display(self, obj):
-        return format_html(
-            '<span class="font-mono">${:.4f}</span>',
-            obj.executed_price
-        )
     
     @display(description="Fee", ordering="fee")
     def fee_display(self, obj):

@@ -31,32 +31,11 @@ class UserProfileAdmin(ModelAdmin):
     warn_unsaved_form = True
     
     fieldsets = [
-        ("User Information", {
-            "fields": [
-                ('user',),
-                ('phone', 'telegram_id'),
-                ('timezone',),
-            ]
-        }),
-        ("Trading Preferences", {
-            "fields": [
-                ('default_exchange', 'preferred_quote_currency'),
-                ('risk_tolerance', 'max_position_size'),
-            ]
-        }),
-        ("Notification Settings", {
-            "fields": [
-                ('enable_email_alerts', 'enable_telegram_alerts'),
-                ('enable_sms_alerts', 'enable_push_notifications'),
-                ('alert_frequency',),
-            ]
-        }),
-        ("API Settings", {
-            "fields": [
-                ('api_rate_limit', 'api_permissions'),
-            ]
-        }),
+        ("User", {"fields": ['user', 'phone', 'telegram_id']}),
+        ("Preferences", {"fields": ['default_exchange', 'timezone', 'enable_email_alerts', 'enable_telegram_alerts']}),
+        ("Meta", {"fields": ['created_at']}),
     ]
+    readonly_fields = ['created_at']
     
     @display(description="Contact Information")
     def contact_info(self, obj):

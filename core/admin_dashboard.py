@@ -36,10 +36,10 @@ def dashboard_callback(request, context):
     
     # Weekly profit
     weekly_profit = ArbitrageExecution.objects.filter(
-        executed_at__gte=week_ago,
+        completed_at__gte=week_ago,
         status='completed'
     ).aggregate(
-        total=Sum('actual_profit')
+        total=Sum('final_profit')
     )['total'] or Decimal('0')
     
     # Success rate (last 7 days)
@@ -84,7 +84,7 @@ def dashboard_callback(request, context):
     # Active trading pairs
     active_pairs = MarketTicker.objects.filter(
         timestamp__gte=now - timedelta(minutes=5)
-    ).values('exchange_trading_pair').distinct().count()
+    ).values('exchange_pair').distinct().count()
     
     # Top opportunities by profit
     top_opportunities = ArbitrageOpportunity.objects.filter(
@@ -110,7 +110,7 @@ def dashboard_callback(request, context):
             date__gte=week_ago.date()
         ).aggregate(
             avg_uptime=Avg('uptime_percentage'),
-            total_volume=Sum('total_volume_traded'),
+            total_volume=Sum('total_volume'),
             avg_response=Avg('average_response_time')
         )
         
@@ -126,10 +126,10 @@ def dashboard_callback(request, context):
     for i in range(30):
         date = today - timedelta(days=i)
         profit = ArbitrageExecution.objects.filter(
-            executed_at__date=date,
+            completed_at__date=date,
             status='completed'
         ).aggregate(
-            total=Sum('actual_profit')
+            total=Sum('final_profit')
         )['total'] or 0
         
         daily_profits.append({

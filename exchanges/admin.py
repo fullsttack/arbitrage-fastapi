@@ -26,7 +26,7 @@ class ExchangeStatusAdmin(ModelAdmin):
     compressed_fields = True
     
     # Auto-refresh every 30 seconds
-    change_list_template = 'admin/exchanges/exchangestatus/change_list.html'
+    # change_list_template = 'admin/exchanges/exchangestatus/change_list.html'  # Removed to fix missing template error
     
     @display(description="Status", label=True)
     def status_indicator(self, obj):
