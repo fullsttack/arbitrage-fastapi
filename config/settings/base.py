@@ -54,7 +54,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "core.middleware.SecurityHeadersMiddleware",  # NEW: Enhanced security
-    "core.middleware.RateLimitMiddleware",  # NEW: API rate limiting
+    "core.middleware.EnhancedRateLimitMiddleware",  # NEW: API rate limiting
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",

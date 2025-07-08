@@ -30,3 +30,14 @@ dependencies = [
     "python-decouple>=3.8",
     "redis>=6.2.0",
 ]
+
+[tool.setuptools]
+packages = [
+    "accounts",
+    "analytics",
+    "arbitrage",
+    "config",
+    "core",
+    "exchanges",
+    "trading",
+]
