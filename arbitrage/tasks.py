@@ -40,6 +40,10 @@ def scan_arbitrage_opportunities():
     """
     logger.info("Starting enhanced arbitrage scan...")
     
+    # Initialize variables
+    simple_opportunities = []
+    multi_strategies = []
+    
     # Get all active user configs
     active_configs = ArbitrageConfig.objects.filter(
         is_active=True

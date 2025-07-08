@@ -466,3 +466,71 @@ def generate_market_summary():
     logger.info(f"Generated market summary for {len(summary)} pairs")
     
     return summary
+
+
+@shared_task
+def validate_market_data():
+    """
+    Validate market data quality and consistency.
+    """
+    logger.info("Starting market data validation...")
+    
+    # Get recent market tickers
+    recent_cutoff = timezone.now() - timedelta(minutes=5)
+    recent_tickers = MarketTicker.objects.filter(
+        timestamp__gte=recent_cutoff
+    ).select_related("exchange_pair__exchange", "exchange_pair__trading_pair")
+    
+    validation_results = {
+        "total_tickers": recent_tickers.count(),
+        "valid_tickers": 0,
+        "invalid_tickers": 0,
+        "issues": []
+    }
+    
+    for ticker in recent_tickers:
+        is_valid = True
+        issues = []
+        
+        # Check for reasonable price values
+        if ticker.last_price <= 0:
+            is_valid = False
+            issues.append("Invalid last price")
+        
+        # Check for reasonable volume
+        if ticker.volume_24h < 0:
+            is_valid = False
+            issues.append("Negative volume")
+        
+        # Check for reasonable spread
+        if ticker.bid_price > ticker.ask_price:
+            is_valid = False
+            issues.append("Bid price higher than ask price")
+        
+        # Check for stale data (older than 10 minutes)
+        if ticker.timestamp < timezone.now() - timedelta(minutes=10):
+            is_valid = False
+            issues.append("Stale data")
+        
+        if is_valid:
+            validation_results["valid_tickers"] += 1
+        else:
+            validation_results["invalid_tickers"] += 1
+            validation_results["issues"].append({
+                "exchange": ticker.exchange_pair.exchange.name,
+                "pair": ticker.exchange_pair.trading_pair.symbol,
+                "issues": issues
+            })
+    
+    # Log validation results
+    if validation_results["invalid_tickers"] > 0:
+        logger.warning(
+            f"Market data validation found {validation_results['invalid_tickers']} "
+            f"invalid tickers out of {validation_results['total_tickers']}"
+        )
+    else:
+        logger.info(
+            f"Market data validation passed for all {validation_results['total_tickers']} tickers"
+        )
+    
+    return validation_results

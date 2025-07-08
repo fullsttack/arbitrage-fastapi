@@ -117,23 +117,12 @@ DATABASES = {
 # Redis configuration with optimization
 REDIS_URL = config("REDIS_URL", default="redis://localhost:6379/0")
 
-# FIXED: Enhanced cache configuration with optimization
+# Enhanced cache configuration
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": REDIS_URL,
         "TIMEOUT": 300,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 50,
-                "socket_connect_timeout": 5,
-                "socket_timeout": 5,
-                "retry_on_timeout": True,
-            },
-            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
-            "IGNORE_EXCEPTIONS": True,
-        },
         "KEY_PREFIX": "crypto_arbitrage",
         "VERSION": 1,
     },
@@ -142,15 +131,6 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": config("REDIS_MARKET_URL", default="redis://localhost:6379/1"),
         "TIMEOUT": 60,  # Shorter timeout for market data
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 100,  # Higher for market data
-                "socket_connect_timeout": 2,
-                "socket_timeout": 2,
-            },
-            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
-        },
         "KEY_PREFIX": "market",
     },
     # SEPARATE cache for API rate limiting
@@ -158,9 +138,6 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": config("REDIS_RATELIMIT_URL", default="redis://localhost:6379/2"),
         "TIMEOUT": 3600,  # 1 hour for rate limiting
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
         "KEY_PREFIX": "ratelimit",
     }
 }
