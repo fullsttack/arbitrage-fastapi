@@ -9,7 +9,7 @@ BLUE := \033[0;34m
 PURPLE := \033[0;35m
 CYAN := \033[0;36m
 WHITE := \033[1;37m
-NC := \033[0m # No Color
+NC := \033[0m
 
 # Project configuration
 PROJECT_NAME := crypto-arbitrage
@@ -83,10 +83,13 @@ setup-uv: check-uv
 		}; \
 	fi
 	@printf "$(YELLOW)📥 Installing dependencies...$(NC)\n"
-	@uv pip install -r pyproject.toml || { \
+	@uv pip install -e . || { \
 		printf "$(RED)❌ Error: Failed to install dependencies!$(NC)\n"; \
-		printf "$(YELLOW)💡 Try: uv pip install -e .$(NC)\n"; \
-		exit 1; \
+		printf "$(YELLOW)💡 Trying alternative installation method...$(NC)\n"; \
+		uv pip install django celery redis httpx cryptography psycopg2-binary django-ninja django-cors-headers django-celery-beat || { \
+			printf "$(RED)❌ Error: Failed to install dependencies with alternative method!$(NC)\n"; \
+			exit 1; \
+		}; \
 	}
 	@printf "$(GREEN)✅ Dependencies installed successfully$(NC)\n"
 
@@ -116,58 +119,58 @@ migrate:
 .PHONY: create-superuser
 create-superuser:
 	@printf "$(BLUE)👤 Setting up admin user...$(NC)\n"
-	@. $(VENV_DIR)/bin/activate && python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); exit() if User.objects.filter(is_superuser=True).exists() else None" 2>/dev/null && { \
-		printf "$(GREEN)✅ Superuser already exists$(NC)\n"; \
-	} || { \
+	@. $(VENV_DIR)/bin/activate && python -c "import django; django.setup(); from django.contrib.auth import get_user_model; User = get_user_model(); print('Superuser exists') if User.objects.filter(is_superuser=True).exists() else User.objects.create_superuser('admin', 'admin@example.com', 'admin123') or print('Superuser created')" || { \
 		printf "$(YELLOW)🔐 Creating superuser (admin/admin123)...$(NC)\n"; \
-		. $(VENV_DIR)/bin/activate && echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin123') if not User.objects.filter(username='admin').exists() else None" | python manage.py shell; \
-		printf "$(GREEN)✅ Superuser created (admin/admin123)$(NC)\n"; \
+		. $(VENV_DIR)/bin/activate && python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin123') if not User.objects.filter(username='admin').exists() else print('Superuser already exists')"; \
 	}
+	@printf "$(GREEN)✅ Admin user ready (admin/admin123)$(NC)\n"
 
 # Load initial data
 .PHONY: load-fixtures
 load-fixtures:
 	@printf "$(BLUE)📊 Loading initial data...$(NC)\n"
-	@. $(VENV_DIR)/bin/activate && python manage.py shell -c "
-from core.models import Currency, Exchange, TradingPair
-from decimal import Decimal
-
-# Create currencies if they don't exist
-currencies = [
-    ('BTC', 'Bitcoin', True, 8),
-    ('ETH', 'Ethereum', True, 8), 
-    ('USDT', 'Tether', True, 6),
-    ('RLS', 'Iranian Rial', False, 0),
-    ('IRT', 'Iranian Toman', False, 0),
-]
-
-for symbol, name, is_crypto, decimals in currencies:
-    Currency.objects.get_or_create(
-        symbol=symbol,
-        defaults={'name': name, 'is_crypto': is_crypto, 'decimal_places': decimals}
-    )
-
-# Create exchanges if they don't exist
-exchanges = [
-    ('nobitex', 'Nobitex', 'https://api.nobitex.ir', 300, 0.0025, 0.0025),
-    ('wallex', 'Wallex', 'https://api.wallex.ir', 60, 0.002, 0.002),
-    ('ramzinex', 'Ramzinex', 'https://publicapi.ramzinex.com', 60, 0.002, 0.002),
-]
-
-for code, name, api_url, rate_limit, maker_fee, taker_fee in exchanges:
-    Exchange.objects.get_or_create(
-        code=code,
-        defaults={
-            'name': name, 
-            'api_url': api_url, 
-            'rate_limit': rate_limit,
-            'maker_fee': Decimal(str(maker_fee)),
-            'taker_fee': Decimal(str(taker_fee))
-        }
-    )
-
-print('✅ Initial data loaded successfully')
+	@. $(VENV_DIR)/bin/activate && python -c "\
+import os; \
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings'); \
+import django; django.setup(); \
+from core.models import Currency, Exchange; \
+from decimal import Decimal; \
+\
+currencies = [ \
+    ('BTC', 'Bitcoin', True, 8), \
+    ('ETH', 'Ethereum', True, 8), \
+    ('USDT', 'Tether', True, 6), \
+    ('RLS', 'Iranian Rial', False, 0), \
+    ('IRT', 'Iranian Toman', False, 0), \
+]; \
+\
+for symbol, name, is_crypto, decimals in currencies: \
+    Currency.objects.get_or_create( \
+        symbol=symbol, \
+        defaults={'name': name, 'is_crypto': is_crypto, 'decimal_places': decimals} \
+    ); \
+\
+exchanges = [ \
+    ('nobitex', 'Nobitex', 'https://api.nobitex.ir', 300, 0.0025, 0.0025), \
+    ('wallex', 'Wallex', 'https://api.wallex.ir', 60, 0.002, 0.002), \
+    ('ramzinex', 'Ramzinex', 'https://publicapi.ramzinex.com', 60, 0.002, 0.002), \
+]; \
+\
+for code, name, api_url, rate_limit, maker_fee, taker_fee in exchanges: \
+    Exchange.objects.get_or_create( \
+        code=code, \
+        defaults={ \
+            'name': name, \
+            'api_url': api_url, \
+            'rate_limit': rate_limit, \
+            'maker_fee': Decimal(str(maker_fee)), \
+            'taker_fee': Decimal(str(taker_fee)) \
+        } \
+    ); \
+\
+print('Initial data loaded successfully'); \
 " || printf "$(YELLOW)⚠️  Initial data loading completed with warnings$(NC)\n"
+	@printf "$(GREEN)✅ Initial data loaded$(NC)\n"
 
 # Full setup process
 .PHONY: setup
@@ -217,8 +220,8 @@ celery-flower: check-redis
 start-services: check-redis
 	@printf "$(BLUE)🚀 Starting all background services...$(NC)\n"
 	@. $(VENV_DIR)/bin/activate && { \
-		nohup celery -A config worker --loglevel=info --concurrency=4 > logs/celery-worker.log 2>&1 & echo $$! > .celery-worker.pid; \
-		nohup celery -A config beat --loglevel=info > logs/celery-beat.log 2>&1 & echo $$! > .celery-beat.pid; \
+		nohup celery -A config worker --loglevel=info --concurrency=4 > logs/celery-worker.log 2>&1 & echo $! > .celery-worker.pid; \
+		nohup celery -A config beat --loglevel=info > logs/celery-beat.log 2>&1 & echo $! > .celery-beat.pid; \
 		printf "$(GREEN)✅ Background services started$(NC)\n"; \
 		printf "$(CYAN)📊 Worker logs: tail -f logs/celery-worker.log$(NC)\n"; \
 		printf "$(CYAN)⏰ Beat logs: tail -f logs/celery-beat.log$(NC)\n"; \
@@ -228,8 +231,8 @@ start-services: check-redis
 .PHONY: stop-services
 stop-services:
 	@printf "$(BLUE)🛑 Stopping background services...$(NC)\n"
-	@[ -f .celery-worker.pid ] && kill `cat .celery-worker.pid` && rm .celery-worker.pid 2>/dev/null || true
-	@[ -f .celery-beat.pid ] && kill `cat .celery-beat.pid` && rm .celery-beat.pid 2>/dev/null || true
+	@[ -f .celery-worker.pid ] && kill `cat .celery-worker.pid` 2>/dev/null && rm .celery-worker.pid || true
+	@[ -f .celery-beat.pid ] && kill `cat .celery-beat.pid` 2>/dev/null && rm .celery-beat.pid || true
 	@printf "$(GREEN)✅ Background services stopped$(NC)\n"
 
 # Start everything (main command)
@@ -283,7 +286,7 @@ reset-db:
 	@printf "$(YELLOW)⚠️  WARNING: This will delete all data!$(NC)\n"
 	@printf "$(RED)Are you sure? [y/N] $(NC)"; \
 	read confirm; \
-	if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+	if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then \
 		rm -f db.sqlite3; \
 		$(MAKE) migrate; \
 		$(MAKE) create-superuser; \
@@ -333,7 +336,7 @@ clean-all: clean
 	@printf "$(YELLOW)⚠️  This will remove virtual environment and database!$(NC)\n"
 	@printf "$(RED)Are you sure? [y/N] $(NC)"; \
 	read confirm; \
-	if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+	if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then \
 		rm -rf $(VENV_DIR); \
 		rm -f db.sqlite3; \
 		rm -rf logs/*.log; \
