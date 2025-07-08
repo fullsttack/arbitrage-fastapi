@@ -69,3 +69,12 @@ class DailyArbitrageSummaryAdmin(ModelAdmin):
             '<div class="text-sm font-mono">${:,.0f}</div>',
             obj.total_volume_traded
         )
+
+@admin.register(ExchangePerformance)
+class ExchangePerformanceAdmin(ModelAdmin):
+    """Exchange performance tracking."""
+    list_display = [field.name for field in ExchangePerformance._meta.fields]
+    list_filter = ['exchange', 'date']
+    search_fields = ['exchange__name']
+    ordering = ['-date']
+    list_fullwidth = True

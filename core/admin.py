@@ -166,7 +166,7 @@ class ExchangeAdmin(ModelAdmin):
                 )
         except:
             return format_html(
-                '<span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">Unknown</span>'
+                '<span class=" px-2 py-1 rounded-full text-xs font-medium">Unknown</span>'
             )
     
     @display(description="Reliability", ordering="reliability_score")
@@ -275,6 +275,6 @@ class APICredentialAdmin(ModelAdmin):
                 '<i class="fas fa-lock mr-1"></i>Encrypted</span>'
             )
         return format_html(
-            '<span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">'
+            '<span class=" px-2 py-1 rounded-full text-xs font-medium">'
             '<i class="fas fa-exclamation-triangle mr-1"></i>Inactive</span>'
         )

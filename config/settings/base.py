@@ -227,11 +227,6 @@ UNFOLD = {
                         "icon": "speed",
                         "link": reverse_lazy("admin:analytics_exchangeperformance_changelist"),
                     },
-                    {
-                        "title": _("Market Analysis"),
-                        "icon": "insights",
-                        "link": reverse_lazy("admin:analytics_marketanalysis_changelist"),
-                    },
                 ],
             },
             {

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Count, Sum, Avg, Q
+from django.db.models import Count, Sum, Avg, Q, F, ExpressionWrapper, DurationField
 from django.utils import timezone
 
 from arbitrage.models import ArbitrageOpportunity, ArbitrageExecution, MultiExchangeArbitrageStrategy
@@ -189,11 +189,11 @@ def dashboard_callback(request, context):
     # Average execution time
     avg_execution_time = ArbitrageExecution.objects.filter(
         completed_at__gte=week_ago,
-        status='completed'
-    ).extra(
-        select={
-            'execution_duration': 'EXTRACT(EPOCH FROM (completed_at - created_at))'
-        }
+        status='completed',
+        completed_at__isnull=False,
+        created_at__isnull=False
+    ).annotate(
+        execution_duration=ExpressionWrapper(F('completed_at') - F('created_at'), output_field=DurationField())
     ).aggregate(
         avg_time=Avg('execution_duration')
     )['avg_time'] or 0

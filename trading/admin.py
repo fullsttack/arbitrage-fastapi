@@ -25,7 +25,7 @@ class OrderAdmin(ModelAdmin):
     ]
     readonly_fields = [
         'exchange_order_id', 'filled_amount', 'average_price',
-        'total_fee', 'created_at', 'updated_at'
+        'created_at', 'updated_at'
     ]
     
     # Unfold settings
@@ -106,11 +106,9 @@ class OrderAdmin(ModelAdmin):
                 '<div class="text-sm font-mono">'
                 '<div>Filled: {:.6f}</div>'
                 '<div>Avg Price: ${:.4f}</div>'
-                '<div>Fee: ${:.4f}</div>'
                 '</div>',
                 obj.filled_amount,
-                obj.average_price or 0,
-                obj.total_fee
+                obj.average_price or 0
             )
         return '-'
     
@@ -195,3 +193,23 @@ class TradingStrategyAdmin(ModelAdmin):
                 '<a href="#" onclick="activateStrategy(\'{}\')" class="text-green-600 hover:text-green-800 text-sm">Activate</a>',
                 obj.id
             )
+
+
+@admin.register(Position)
+class PositionAdmin(ModelAdmin):
+    """Position management."""
+    list_display = [field.name for field in Position._meta.fields]
+    list_filter = ['user', 'exchange', 'status']
+    search_fields = ['user__username', 'exchange__name', 'trading_pair__symbol']
+    ordering = ['-opened_at']
+    list_fullwidth = True
+
+
+@admin.register(Trade)
+class TradeAdmin(ModelAdmin):
+    """Trade management."""
+    list_display = [field.name for field in Trade._meta.fields]
+    list_filter = ['order', 'price', 'executed_at']
+    search_fields = ['order__exchange_order_id', 'order__user__username', 'order__trading_pair__symbol']
+    ordering = ['-executed_at']
+    list_fullwidth = True

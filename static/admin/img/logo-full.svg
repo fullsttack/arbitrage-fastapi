@@ -1,0 +1,14 @@
+<svg width="180" height="48" viewBox="0 0 180 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="48" rx="10" fill="#18181B"/>
+  <g>
+    <!-- Crypto coin symbol -->
+    <circle cx="32" cy="24" r="16" fill="#10b981"/>
+    <circle cx="32" cy="24" r="10" fill="#FFD700" stroke="#fff" stroke-width="2"/>
+    <text x="27.5" y="28.5" font-family="Arial" font-size="12" font-weight="bold" fill="#18181B">$</text>
+    <!-- Blockchain blocks -->
+    <rect x="56" y="15" width="8" height="18" rx="4" fill="#6366f1"/>
+    <rect x="70" y="9" width="8" height="30" rx="4" fill="#f59e0b"/>
+    <rect x="84" y="19" width="8" height="10" rx="4" fill="#ef4444"/>
+  </g>
+  <text x="100" y="32" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="bold" fill="#fff">Crypto</text>
+</svg> 
