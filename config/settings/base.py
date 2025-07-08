@@ -6,6 +6,9 @@ import os
 from pathlib import Path
 from decouple import Csv, config
 from cryptography.fernet import Fernet
+from django.utils.translation import gettext_lazy as _
+from django.urls import reverse_lazy
+from django.templatetags.static import static
 
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent.parent

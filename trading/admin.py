@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
+from django.contrib.admin import action
 
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
@@ -13,8 +14,8 @@ class TradeInline(TabularInline):
     
     model = Trade
     extra = 0
-    readonly_fields = ['executed_at', 'fee_paid']
-    fields = ['executed_amount', 'executed_price', 'fee_paid', 'executed_at']
+    readonly_fields = ['executed_at', 'fee']
+    fields = ['executed_amount', 'executed_price', 'fee', 'executed_at']
 
 
 @admin.register(Order)
@@ -112,9 +113,9 @@ class TradeAdmin(ModelAdmin):
         'trade_info', 'side_indicator', 'executed_amount_display',
         'executed_price_display', 'fee_display', 'executed_at'
     ]
-    list_filter = ['order__side', 'exchange', 'executed_at']
+    list_filter = ['order__side', 'order__exchange', 'executed_at']
     search_fields = ['order__trading_pair__symbol', 'trade_id']
-    readonly_fields = ['executed_at', 'trade_metadata']
+    readonly_fields = ['executed_at', 'metadata']
     
     # Unfold settings
     list_fullwidth = True
@@ -156,11 +157,11 @@ class TradeAdmin(ModelAdmin):
             obj.executed_price
         )
     
-    @display(description="Fee", ordering="fee_paid")
+    @display(description="Fee", ordering="fee")
     def fee_display(self, obj):
         return format_html(
             '<span class="font-mono text-red-800">${:.4f}</span>',
-            obj.fee_paid or 0
+            obj.fee or 0
         )
 
 
@@ -285,7 +286,7 @@ class TradingAlertAdmin(ModelAdmin):
         'alert_type_display', 'message_preview', 'is_read_display',
         'priority_indicator', 'created_at'
     ]
-    list_filter = ['alert_type', 'is_read', 'priority', 'created_at']
+    list_filter = ['alert_type', 'is_read', 'created_at']
     search_fields = ['message', 'order__trading_pair__symbol']
     actions = ['mark_as_read', 'mark_as_unread']
     

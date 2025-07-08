@@ -205,7 +205,7 @@ class ExchangeTradingPairAdmin(ModelAdmin):
     
     list_display = [
         'exchange', 'trading_pair', 'exchange_symbol', 
-        'is_active_display', 'min_trade_amount', 'last_sync'
+        'is_active_display', 'min_order_size', 'last_sync'
     ]
     list_filter = ['exchange', 'is_active', 'last_sync']
     search_fields = [

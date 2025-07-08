@@ -25,7 +25,6 @@ class UserProfileAdmin(ModelAdmin):
     ]
     list_filter = ['default_exchange', 'timezone', 'enable_email_alerts', 'enable_telegram_alerts']
     search_fields = ['user__username', 'user__email', 'phone', 'telegram_id']
-    inlines = [NotificationSettingInline]
     
     # Unfold settings
     list_fullwidth = True
@@ -108,7 +107,7 @@ class NotificationSettingAdmin(ModelAdmin):
         'user', 'notification_type_display', 'channels_enabled',
         'frequency_display', 'is_active_display'
     ]
-    list_filter = ['notification_type', 'email_enabled', 'telegram_enabled', 'frequency']
+    list_filter = ['notification_type', 'email_enabled', 'telegram_enabled']
     search_fields = ['user__username', 'user__email']
     
     # Unfold settings

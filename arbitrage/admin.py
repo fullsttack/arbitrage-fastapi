@@ -19,8 +19,8 @@ class ArbitrageExecutionInline(TabularInline):
     
     model = ArbitrageExecution
     extra = 0
-    readonly_fields = ['executed_at', 'status', 'actual_profit']
-    fields = ['status', 'executed_amount', 'actual_profit', 'executed_at']
+    readonly_fields = ['status']
+    fields = ['status', 'buy_filled_amount', 'sell_filled_amount']
 
 
 @admin.register(ArbitrageOpportunity)
@@ -168,7 +168,7 @@ class MultiExchangeArbitrageStrategyAdmin(ModelAdmin):
         'profit_display', 'complexity_indicator', 'status_display'
     ]
     list_filter = ['status', 'created_at']
-    readonly_fields = ['total_profit_percentage', 'estimated_total_profit', 'complexity_score']
+    readonly_fields = ['complexity_score']
     
     # Unfold settings
     list_fullwidth = True
@@ -243,15 +243,15 @@ class ArbitrageExecutionAdmin(ModelAdmin):
     
     list_display = [
         'opportunity_link', 'status_indicator', 'executed_amount_display',
-        'profit_analysis', 'execution_time', 'executed_at'
+        'profit_analysis', 'execution_time'
     ]
-    list_filter = ['status', 'executed_at']
+    list_filter = ['status']
     search_fields = [
         'opportunity__trading_pair__symbol',
         'opportunity__buy_exchange__name',
         'opportunity__sell_exchange__name'
     ]
-    readonly_fields = ['executed_at', 'execution_metadata']
+    readonly_fields = []
     
     # Unfold settings
     list_fullwidth = True
@@ -328,7 +328,7 @@ class ArbitrageConfigAdmin(ModelAdmin):
         'user', 'config_summary', 'risk_level_display', 
         'is_active_display', 'updated_at'
     ]
-    list_filter = ['is_active', 'max_execution_amount', 'updated_at']
+    list_filter = ['is_active', 'updated_at']
     search_fields = ['user__username']
     
     # Unfold settings
@@ -399,7 +399,7 @@ class ArbitrageAlertAdmin(ModelAdmin):
         'alert_type_display', 'message_preview', 'is_read_display',
         'priority_indicator', 'created_at'
     ]
-    list_filter = ['alert_type', 'is_read', 'priority', 'created_at']
+    list_filter = ['alert_type', 'is_read', 'created_at']
     search_fields = ['message', 'opportunity__trading_pair__symbol']
     actions = ['mark_as_read', 'mark_as_unread']
     

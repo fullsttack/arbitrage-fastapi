@@ -72,13 +72,13 @@ class MarketTickerAdmin(ModelAdmin):
     """Market data monitoring with real-time updates."""
     
     list_display = [
-        'exchange_trading_pair', 'last_price_display', 'spread_display',
+        'exchange_pair', 'last_price_display', 'spread_display',
         'volume_24h_display', 'change_24h_display', 'timestamp'
     ]
-    list_filter = ['exchange_trading_pair__exchange', 'timestamp']
+    list_filter = ['exchange_pair__exchange', 'timestamp']
     search_fields = [
-        'exchange_trading_pair__trading_pair__symbol',
-        'exchange_trading_pair__exchange__name'
+        'exchange_pair__trading_pair__symbol',
+        'exchange_pair__exchange__name'
     ]
     readonly_fields = ['timestamp']
     
@@ -130,10 +130,10 @@ class OrderBookAdmin(ModelAdmin):
     """Order book depth analysis."""
     
     list_display = [
-        'exchange_trading_pair', 'depth_analysis', 'best_bid_display',
+        'exchange_pair', 'depth_analysis', 'best_bid_display',
         'best_ask_display', 'timestamp'
     ]
-    list_filter = ['exchange_trading_pair__exchange', 'timestamp']
+    list_filter = ['exchange_pair__exchange', 'timestamp']
     readonly_fields = ['timestamp']
     
     # Unfold settings
