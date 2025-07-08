@@ -85,7 +85,7 @@ requires-dist = [
     { name = "black", specifier = ">=25.1.0" },
     { name = "celery", specifier = ">=5.5.3" },
     { name = "cryptography", specifier = ">=44.0.0" },
-    { name = "django", specifier = ">=5.1.0" },
+    { name = "django", specifier = ">=5.2.0" },
     { name = "django-celery-beat", specifier = ">=2.8.1" },
     { name = "django-cors-headers", specifier = ">=4.7.0" },
     { name = "django-extensions", specifier = ">=4.1" },
