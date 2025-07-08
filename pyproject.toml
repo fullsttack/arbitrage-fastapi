@@ -15,6 +15,7 @@ dependencies = [
     "django-extensions>=4.1",
     "django-ninja>=1.4.3",
     "django-ratelimit>=4.1.0",
+    "django-unfold>=0.62.0",
     "flake8>=7.3.0",
     "gunicorn>=23.0.0",
     "httpx>=0.28.1",

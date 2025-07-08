@@ -1,0 +1,322 @@
+{% extends 'unfold/layouts/base_simple.html' %}
+{% load i18n unfold %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block title %}
+    {% trans 'Crypto Arbitrage Dashboard' %} | {{ site_title|default:_('Django site admin') }}
+{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name" class="text-2xl font-bold text-gray-900 dark:text-white">
+        <a href="{% url 'admin:index' %}" class="flex items-center">
+            <svg class="w-8 h-8 mr-3 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            {{ site_header }}
+        </a>
+    </h1>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Quick Stats Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Active Opportunities -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                Active Opportunities
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                                {{ active_opportunities|default:0 }}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Profit -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                Weekly Profit
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                                ${{ weekly_profit|floatformat:2|default:"0.00" }}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Rate -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                Success Rate
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                                {{ success_rate|floatformat:1|default:"0.0" }}%
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Online Exchanges -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                Online Exchanges
+                            </dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                                {{ online_exchanges|default:0 }}/{{ total_exchanges|default:0 }}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Recent Activity Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Daily Profit Chart -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
+                    Daily Profit (Last 30 Days)
+                </h3>
+                <div class="h-64">
+                    <canvas id="dailyProfitChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Opportunities -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
+                    Top Opportunities (This Week)
+                </h3>
+                <div class="space-y-3">
+                    {% for opportunity in top_opportunities %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                {{ opportunity.trading_pair.symbol }}
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                {{ opportunity.buy_exchange.name }} → {{ opportunity.sell_exchange.name }}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-bold text-green-600">
+                                {{ opportunity.net_profit_percentage|floatformat:2 }}%
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                ${{ opportunity.estimated_profit|floatformat:2 }}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                        No opportunities detected this week
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exchange Performance and System Status -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Exchange Performance -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
+                    Exchange Performance
+                </h3>
+                <div class="space-y-4">
+                    {% for performance in exchange_performance %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                            <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                {{ performance.name }}
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-4 text-sm">
+                            <span class="text-gray-500 dark:text-gray-400">
+                                {{ performance.uptime }}% uptime
+                            </span>
+                            <span class="text-gray-500 dark:text-gray-400">
+                                {{ performance.response_time }}ms
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-gray-500 dark:text-gray-400 py-4">
+                        No performance data available
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- System Alerts -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
+                    System Alerts
+                </h3>
+                <div class="space-y-3">
+                    {% for alert in system_alerts %}
+                    <div class="flex items-start p-3 {% if alert.level == 'error' %}bg-red-50 dark:bg-red-900/20{% elif alert.level == 'warning' %}bg-yellow-50 dark:bg-yellow-900/20{% else %}bg-blue-50 dark:bg-blue-900/20{% endif %} rounded-lg">
+                        <div class="flex-shrink-0">
+                            {% if alert.level == 'error' %}
+                            <svg class="w-4 h-4 text-red-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            {% elif alert.level == 'warning' %}
+                            <svg class="w-4 h-4 text-yellow-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            {% else %}
+                            <svg class="w-4 h-4 text-blue-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h4 class="text-sm font-medium {% if alert.level == 'error' %}text-red-800 dark:text-red-200{% elif alert.level == 'warning' %}text-yellow-800 dark:text-yellow-200{% else %}text-blue-800 dark:text-blue-200{% endif %}">
+                                {{ alert.title }}
+                            </h4>
+                            <p class="text-xs {% if alert.level == 'error' %}text-red-700 dark:text-red-300{% elif alert.level == 'warning' %}text-yellow-700 dark:text-yellow-300{% else %}text-blue-700 dark:text-blue-300{% endif %} mt-1">
+                                {{ alert.message }}
+                            </p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-gray-500 dark:text-gray-400 py-4">
+                        <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        All systems operational
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Last updated info -->
+    <div class="text-center text-sm text-gray-500 dark:text-gray-400">
+        Last updated: {{ dashboard_last_updated|date:"M d, Y H:i:s" }} UTC
+        {% if dashboard_auto_refresh %}
+        <span class="ml-2">• Auto-refresh enabled</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Chart.js Integration -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Daily Profit Chart
+    const ctx = document.getElementById('dailyProfitChart').getContext('2d');
+    const dailyProfitData = JSON.parse('{{ daily_profits|safe }}');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dailyProfitData.map(d => d.date),
+            datasets: [{
+                label: 'Daily Profit ($)',
+                data: dailyProfitData.map(d => d.profit),
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(156, 163, 175, 0.3)'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(156, 163, 175, 0.3)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Auto-refresh setup
+    const autoRefreshEnabled = '{{ dashboard_auto_refresh|yesno:"true,false" }}' === 'true';
+    if (autoRefreshEnabled) {
+        setInterval(function() {
+            location.reload();
+        }, 30000);
+    }
+});
+</script>
+{% endblock %}

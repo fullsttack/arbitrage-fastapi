@@ -32,6 +32,11 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "unfold",
+    "unfold.contrib.filters",     # Enhanced filters
+    "unfold.contrib.forms",       # Form enhancements
+    "unfold.contrib.inlines",     # Inline improvements
+    "unfold.contrib.import_export", 
     "corsheaders",
     "django_extensions",
     "django_celery_beat",
@@ -47,7 +52,282 @@ LOCAL_APPS = [
     "analytics",
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
+
+# Django Unfold Configuration
+UNFOLD = {
+    # Site branding
+    "SITE_TITLE": "Crypto Arbitrage Admin",
+    "SITE_HEADER": "Crypto Arbitrage Platform",
+    "SITE_SUBHEADER": "Advanced Trading & Analytics",
+    "SITE_URL": "/",
+    "SITE_ICON": lambda request: static("admin/img/logo.svg"),
+    "SITE_LOGO": lambda request: static("admin/img/logo-full.svg"),
+    "SITE_SYMBOL": "₿",
+    
+    # Navigation and sidebar
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": _("Dashboard"),
+                "icon": "dashboard",
+                "separator": True,
+                "collapsible": False,
+                "items": [
+                    {
+                        "title": _("Overview"),
+                        "icon": "analytics",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                    {
+                        "title": _("System Health"),
+                        "icon": "monitor_heart",
+                        "link": reverse_lazy("admin:core_exchange_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Exchange Management"),
+                "icon": "currency_exchange",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Exchanges"),
+                        "icon": "account_balance",
+                        "link": reverse_lazy("admin:core_exchange_changelist"),
+                    },
+                    {
+                        "title": _("Trading Pairs"),
+                        "icon": "swap_horiz",
+                        "link": reverse_lazy("admin:core_tradingpair_changelist"),
+                    },
+                    {
+                        "title": _("Exchange Status"),
+                        "icon": "health_and_safety",
+                        "link": reverse_lazy("admin:exchanges_exchangestatus_changelist"),
+                    },
+                    {
+                        "title": _("Market Tickers"),
+                        "icon": "trending_up",
+                        "link": reverse_lazy("admin:exchanges_marketticker_changelist"),
+                    },
+                    {
+                        "title": _("Order Books"),
+                        "icon": "list_alt",
+                        "link": reverse_lazy("admin:exchanges_orderbook_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Arbitrage Operations"),
+                "icon": "compare_arrows",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Opportunities"),
+                        "icon": "trending_up",
+                        "link": reverse_lazy("admin:arbitrage_arbitrageopportunity_changelist"),
+                    },
+                    {
+                        "title": _("Multi-Exchange Strategies"),
+                        "icon": "device_hub",
+                        "link": reverse_lazy("admin:arbitrage_multiexchangearbitragestrategy_changelist"),
+                    },
+                    {
+                        "title": _("Executions"),
+                        "icon": "play_arrow",
+                        "link": reverse_lazy("admin:arbitrage_arbitrageexecution_changelist"),
+                    },
+                    {
+                        "title": _("Configurations"),
+                        "icon": "settings",
+                        "link": reverse_lazy("admin:arbitrage_arbitrageconfig_changelist"),
+                    },
+                    {
+                        "title": _("Alerts"),
+                        "icon": "notifications",
+                        "link": reverse_lazy("admin:arbitrage_arbitragealert_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Trading"),
+                "icon": "show_chart",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Orders"),
+                        "icon": "receipt",
+                        "link": reverse_lazy("admin:trading_order_changelist"),
+                    },
+                    {
+                        "title": _("Trades"),
+                        "icon": "handshake",
+                        "link": reverse_lazy("admin:trading_trade_changelist"),
+                    },
+                    {
+                        "title": _("Positions"),
+                        "icon": "account_balance_wallet",
+                        "link": reverse_lazy("admin:trading_position_changelist"),
+                    },
+                    {
+                        "title": _("Strategies"),
+                        "icon": "psychology",
+                        "link": reverse_lazy("admin:trading_tradingstrategy_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Analytics & Reports"),
+                "icon": "analytics",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Daily Summary"),
+                        "icon": "summarize",
+                        "link": reverse_lazy("admin:analytics_dailyarbitragesummary_changelist"),
+                    },
+                    {
+                        "title": _("Exchange Performance"),
+                        "icon": "speed",
+                        "link": reverse_lazy("admin:analytics_exchangeperformance_changelist"),
+                    },
+                    {
+                        "title": _("Market Snapshots"),
+                        "icon": "camera_alt",
+                        "link": reverse_lazy("admin:analytics_marketsnapshot_changelist"),
+                    },
+                    {
+                        "title": _("User Performance"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:analytics_userperformance_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("User Management"),
+                "icon": "people",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Users"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:auth_user_changelist"),
+                    },
+                    {
+                        "title": _("Groups"),
+                        "icon": "group",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
+                    },
+                    {
+                        "title": _("User Profiles"),
+                        "icon": "account_circle",
+                        "link": reverse_lazy("admin:accounts_userprofile_changelist"),
+                    },
+                    {
+                        "title": _("API Credentials"),
+                        "icon": "vpn_key",
+                        "link": reverse_lazy("admin:core_apicredential_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("System"),
+                "icon": "settings",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("Currencies"),
+                        "icon": "paid",
+                        "link": reverse_lazy("admin:core_currency_changelist"),
+                    },
+                    {
+                        "title": _("Celery Tasks"),
+                        "icon": "task",
+                        "link": "/admin/django_celery_beat/",
+                    },
+                ],
+            },
+        ],
+    },
+    
+    # Theme and styling
+    "THEME": "auto",  # auto, light, dark
+    "COLORS": {
+        "primary": {
+            "50": "240 249 255",    # Very light blue
+            "100": "224 242 254",   # Light blue
+            "200": "186 230 253",   # Lighter blue
+            "300": "125 211 252",   # Light blue
+            "400": "56 189 248",    # Medium blue
+            "500": "14 165 233",    # Primary blue
+            "600": "2 132 199",     # Darker blue
+            "700": "3 105 161",     # Dark blue
+            "800": "7 89 133",      # Very dark blue
+            "900": "12 74 110",     # Darkest blue
+            "950": "8 47 73",       # Almost black blue
+        },
+        "font": {
+            "subtle-light": "156 163 175",
+            "subtle-dark": "156 163 175",
+            "default-light": "31 41 55",
+            "default-dark": "209 213 219",
+            "important-light": "17 24 39",
+            "important-dark": "243 244 246",
+        },
+    },
+    
+    # Dashboard customization
+    "DASHBOARD_CALLBACK": "core.admin_dashboard.dashboard_callback",
+    
+    # Login page customization
+    "LOGIN": {
+        "image": lambda request: static("admin/img/login-bg.jpg"),
+        "redirect_after": lambda request: reverse_lazy("admin:index"),
+    },
+    
+    # Environment indication
+    "ENVIRONMENT": "crypto_arbitrage.settings.get_environment_label",
+    
+    # Show environment info
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    
+    # Custom styles and scripts
+    "STYLES": [
+        lambda request: static("admin/css/custom.css"),
+    ],
+    "SCRIPTS": [
+        lambda request: static("admin/js/custom.js"),
+    ],
+    
+    # Advanced features
+    "TABS": [
+        {
+            "models": ["core.exchange", "core.tradingpair"],
+            "items": [
+                {
+                    "title": _("Configuration"),
+                    "icon": "settings",
+                    "link": reverse_lazy("admin:core_exchange_changelist"),
+                },
+                {
+                    "title": _("Performance"),
+                    "icon": "speed",
+                    "link": reverse_lazy("admin:analytics_exchangeperformance_changelist"),
+                },
+            ],
+        },
+    ],
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
