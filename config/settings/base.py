@@ -57,16 +57,52 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = THIRD_PARTY_APPS + DJANGO_APPS + LOCAL_APPS
 
-# Django Unfold Configuration
 UNFOLD = {
     # Site branding
     "SITE_TITLE": "Crypto Arbitrage Admin",
     "SITE_HEADER": "Crypto Arbitrage Platform",
-    "SITE_SUBHEADER": "Advanced Trading & Analytics",
+    "SITE_SUBHEADER": "Advanced Trading & Analytics Dashboard",
     "SITE_URL": "/",
     "SITE_ICON": lambda request: static("admin/img/logo.svg"),
     "SITE_LOGO": lambda request: static("admin/img/logo-full.svg"),
     "SITE_SYMBOL": "₿",
+    "SITE_FAVICONS": [
+        {
+            "rel": "icon",
+            "sizes": "32x32",
+            "type": "image/svg+xml",
+            "href": lambda request: static("admin/img/favicon.svg"),
+        },
+    ],
+    
+    # Color theme
+    "COLORS": {
+        "primary": {
+            "50": "250 245 255",
+            "100": "243 232 255", 
+            "200": "233 213 255",
+            "300": "216 180 254",
+            "400": "196 181 253",
+            "500": "168 85 247",   # Main brand color
+            "600": "147 51 234",
+            "700": "126 34 206",
+            "800": "107 33 168",
+            "900": "88 28 135",
+            "950": "59 7 100",
+        },
+        "font": {
+            "subtle-light": "115 115 115",
+            "subtle-dark": "212 212 212",
+            "default-light": "0 0 0",
+            "default-dark": "255 255 255",
+            "important-light": "0 0 0",
+            "important-dark": "255 255 255",
+        },
+    },
+    
+    # Dashboard customization
+    "DASHBOARD_CALLBACK": "core.admin_dashboard.dashboard_callback",
+    "INDEX_TEMPLATE": "admin/enhanced_index.html",
     
     # Navigation and sidebar
     "SIDEBAR": {
@@ -75,13 +111,13 @@ UNFOLD = {
         "navigation": [
             {
                 "title": _("Dashboard"),
-                "icon": "dashboard",
+                "icon": "analytics",
                 "separator": True,
                 "collapsible": False,
                 "items": [
                     {
                         "title": _("Overview"),
-                        "icon": "analytics",
+                        "icon": "dashboard",
                         "link": reverse_lazy("admin:index"),
                     },
                     {
@@ -108,31 +144,26 @@ UNFOLD = {
                         "link": reverse_lazy("admin:core_tradingpair_changelist"),
                     },
                     {
-                        "title": _("Exchange Status"),
-                        "icon": "health_and_safety",
-                        "link": reverse_lazy("admin:exchanges_exchangestatus_changelist"),
+                        "title": _("API Credentials"),
+                        "icon": "vpn_key",
+                        "link": reverse_lazy("admin:core_apicredential_changelist"),
                     },
                     {
-                        "title": _("Market Tickers"),
+                        "title": _("Market Data"),
                         "icon": "trending_up",
                         "link": reverse_lazy("admin:exchanges_marketticker_changelist"),
-                    },
-                    {
-                        "title": _("Order Books"),
-                        "icon": "list_alt",
-                        "link": reverse_lazy("admin:exchanges_orderbook_changelist"),
                     },
                 ],
             },
             {
                 "title": _("Arbitrage Operations"),
-                "icon": "compare_arrows",
+                "icon": "trending_up",
                 "separator": True,
                 "collapsible": True,
                 "items": [
                     {
                         "title": _("Opportunities"),
-                        "icon": "trending_up",
+                        "icon": "flash_on",
                         "link": reverse_lazy("admin:arbitrage_arbitrageopportunity_changelist"),
                     },
                     {
@@ -146,14 +177,9 @@ UNFOLD = {
                         "link": reverse_lazy("admin:arbitrage_arbitrageexecution_changelist"),
                     },
                     {
-                        "title": _("Configurations"),
+                        "title": _("Configuration"),
                         "icon": "settings",
                         "link": reverse_lazy("admin:arbitrage_arbitrageconfig_changelist"),
-                    },
-                    {
-                        "title": _("Alerts"),
-                        "icon": "notifications",
-                        "link": reverse_lazy("admin:arbitrage_arbitragealert_changelist"),
                     },
                 ],
             },
@@ -169,14 +195,14 @@ UNFOLD = {
                         "link": reverse_lazy("admin:trading_order_changelist"),
                     },
                     {
-                        "title": _("Trades"),
-                        "icon": "handshake",
-                        "link": reverse_lazy("admin:trading_trade_changelist"),
-                    },
-                    {
                         "title": _("Positions"),
                         "icon": "account_balance_wallet",
                         "link": reverse_lazy("admin:trading_position_changelist"),
+                    },
+                    {
+                        "title": _("Trades"),
+                        "icon": "swap_vert",
+                        "link": reverse_lazy("admin:trading_trade_changelist"),
                     },
                     {
                         "title": _("Strategies"),
@@ -186,14 +212,14 @@ UNFOLD = {
                 ],
             },
             {
-                "title": _("Analytics & Reports"),
-                "icon": "analytics",
+                "title": _("Analytics"),
+                "icon": "bar_chart",
                 "separator": True,
                 "collapsible": True,
                 "items": [
                     {
-                        "title": _("Daily Summary"),
-                        "icon": "summarize",
+                        "title": _("Performance Reports"),
+                        "icon": "assessment",
                         "link": reverse_lazy("admin:analytics_dailyarbitragesummary_changelist"),
                     },
                     {
@@ -202,14 +228,9 @@ UNFOLD = {
                         "link": reverse_lazy("admin:analytics_exchangeperformance_changelist"),
                     },
                     {
-                        "title": _("Market Snapshots"),
-                        "icon": "camera_alt",
-                        "link": reverse_lazy("admin:analytics_marketsnapshot_changelist"),
-                    },
-                    {
-                        "title": _("User Performance"),
-                        "icon": "person",
-                        "link": reverse_lazy("admin:analytics_userperformance_changelist"),
+                        "title": _("Market Analysis"),
+                        "icon": "insights",
+                        "link": reverse_lazy("admin:analytics_marketanalysis_changelist"),
                     },
                 ],
             },
@@ -234,71 +255,13 @@ UNFOLD = {
                         "icon": "account_circle",
                         "link": reverse_lazy("admin:accounts_userprofile_changelist"),
                     },
-                    {
-                        "title": _("API Credentials"),
-                        "icon": "vpn_key",
-                        "link": reverse_lazy("admin:core_apicredential_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("System"),
-                "icon": "settings",
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("Currencies"),
-                        "icon": "paid",
-                        "link": reverse_lazy("admin:core_currency_changelist"),
-                    },
-                    {
-                        "title": _("Celery Tasks"),
-                        "icon": "task",
-                        "link": "/admin/django_celery_beat/",
-                    },
                 ],
             },
         ],
     },
     
-    # Theme and styling
-    "THEME": "auto",  # auto, light, dark
-    "COLORS": {
-        "primary": {
-            "50": "240 249 255",    # Very light blue
-            "100": "224 242 254",   # Light blue
-            "200": "186 230 253",   # Lighter blue
-            "300": "125 211 252",   # Light blue
-            "400": "56 189 248",    # Medium blue
-            "500": "14 165 233",    # Primary blue
-            "600": "2 132 199",     # Darker blue
-            "700": "3 105 161",     # Dark blue
-            "800": "7 89 133",      # Very dark blue
-            "900": "12 74 110",     # Darkest blue
-            "950": "8 47 73",       # Almost black blue
-        },
-        "font": {
-            "subtle-light": "156 163 175",
-            "subtle-dark": "156 163 175",
-            "default-light": "31 41 55",
-            "default-dark": "209 213 219",
-            "important-light": "17 24 39",
-            "important-dark": "243 244 246",
-        },
-    },
-    
-    # Dashboard customization
-    "DASHBOARD_CALLBACK": "core.admin_dashboard.dashboard_callback",
-    
-    # Login page customization
-    "LOGIN": {
-        "image": lambda request: static("admin/img/login-bg.jpg"),
-        "redirect_after": lambda request: reverse_lazy("admin:index"),
-    },
-    
-    # Environment indication
-    "ENVIRONMENT": "crypto_arbitrage.settings.get_environment_label",
+    # Environment and branding
+    "ENVIRONMENT": "core.utils.get_environment_label",
     
     # Show environment info
     "SHOW_HISTORY": True,
@@ -307,9 +270,11 @@ UNFOLD = {
     # Custom styles and scripts
     "STYLES": [
         lambda request: static("admin/css/custom.css"),
+        lambda request: static("admin/css/dashboard.css"),
     ],
     "SCRIPTS": [
         lambda request: static("admin/js/custom.js"),
+        lambda request: static("admin/js/dashboard.js"),
     ],
     
     # Advanced features
@@ -329,6 +294,12 @@ UNFOLD = {
                 },
             ],
         },
+    ],
+    
+    # Filters and search
+    "FILTERS": [
+        "unfold.contrib.filters.RangeNumericListFilter",
+        "unfold.contrib.filters.RangeDateTimeListFilter",
     ],
 }
 
