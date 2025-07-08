@@ -311,6 +311,229 @@ CORS_ALLOWED_ORIGINS = config(
 )
 CORS_ALLOW_CREDENTIALS = True
 
+
+# Add this to your config/settings/base.py file
+# EXCHANGE CONFIGURATIONS (Based on Official Documentation)
+
+# Exchange API URLs (Fixed according to documentation)
+EXCHANGE_SETTINGS = {
+    'nobitex': {
+        'api_url': config('NOBITEX_API_URL', default='https://api.nobitex.ir'),
+        'api_key': config('NOBITEX_API_KEY', default=''),
+        'rate_limit': config('NOBITEX_RATE_LIMIT', default=300, cast=int),
+        'timeout': config('NOBITEX_TIMEOUT', default=10, cast=int),
+        'requests_per_minute': config('NOBITEX_RPM', default=300, cast=int),
+    },
+    'wallex': {
+        'api_url': config('WALLEX_API_URL', default='https://api.wallex.ir'),
+        'api_key': config('WALLEX_API_KEY', default=''),
+        'rate_limit': config('WALLEX_RATE_LIMIT', default=100, cast=int),  # 100 req/sec
+        'timeout': config('WALLEX_TIMEOUT', default=10, cast=int),
+        'requests_per_minute': config('WALLEX_RPM', default=6000, cast=int),
+        'max_requests_per_second': config('WALLEX_MAX_REQUESTS_PER_SECOND', default=100, cast=int),
+        'otc_enabled': config('WALLEX_OTC_ENABLED', default=True, cast=bool),
+        'order_rate_limit': 6,  # 6 requests per second for orders (from documentation)
+    },
+    'ramzinex': {
+        # Fixed URLs according to documentation
+        'public_api_url': config('RAMZINEX_PUBLIC_API_URL', 
+                                default='https://publicapi.ramzinex.com/exchange/api/v1.0/exchange'),
+        'private_api_url': config('RAMZINEX_PRIVATE_API_URL', 
+                                 default='https://api.ramzinex.com/exchange/api/v1.0/exchange'),
+        'websocket_url': config('RAMZINEX_WEBSOCKET_URL', 
+                               default='wss://websocket.ramzinex.com/websocket'),
+        'api_key': config('RAMZINEX_API_KEY', default=''),
+        'secret_key': config('RAMZINEX_SECRET_KEY', default=''),
+        'rate_limit': config('RAMZINEX_RATE_LIMIT', default=60, cast=int),
+        'timeout': config('RAMZINEX_TIMEOUT', default=10, cast=int),
+        'requests_per_minute': config('RAMZINEX_RPM', default=60, cast=int),
+        'token_expiry_hours': config('RAMZINEX_TOKEN_EXPIRY_HOURS', default=24, cast=int),
+        'auto_refresh_token': config('RAMZINEX_AUTO_REFRESH_TOKEN', default=True, cast=bool),
+    }
+}
+
+# API Rate Limiting Configuration
+API_RATE_LIMITS = {
+    'default_per_minute': 60,
+    'burst_allowance': 10,
+    'exchanges': {
+        'wallex': {
+            'general': 100,  # requests per second
+            'orders': 10,    # requests per second for order endpoints  
+            'withdrawal': 6, # requests per second for withdrawal endpoints
+        },
+        'ramzinex': {
+            'general': 60,   # requests per minute
+            'orders': 30,    # requests per minute for orders
+            'auth': 10,      # requests per minute for authentication
+        },
+        'nobitex': {
+            'general': 300,  # requests per minute
+            'orders': 60,    # requests per minute for orders
+        }
+    }
+}
+
+# Exchange Authentication Methods
+EXCHANGE_AUTH_METHODS = {
+    'wallex': {
+        'type': 'api_key',
+        'header_name': 'X-API-Key',
+        'required_fields': ['api_key'],
+    },
+    'ramzinex': {
+        'type': 'bearer_token_with_api_key',
+        'auth_endpoint': '/auth/api_key/getToken',
+        'headers': {
+            'authorization': 'Authorization2',  # Fixed header name!
+            'api_key': 'x-api-key',
+        },
+        'required_fields': ['api_key', 'secret_key'],
+        'token_method': 'POST',
+    },
+    'nobitex': {
+        'type': 'api_key',
+        'header_name': 'Authorization',
+        'required_fields': ['api_key'],
+    }
+}
+
+# Exchange Feature Support
+EXCHANGE_FEATURES = {
+    'wallex': {
+        'spot_trading': True,
+        'otc_trading': True,  # Instant trading
+        'websocket': True,
+        'order_types': ['LIMIT', 'MARKET'],
+        'withdrawal': True,
+        'deposit': True,
+        'fees_endpoint': '/v1/account/fee',
+        'balance_endpoint': '/v1/account/balances',
+        'profile_endpoint': '/v1/account/profile',
+    },
+    'ramzinex': {
+        'spot_trading': True,
+        'otc_trading': False,
+        'websocket': True,
+        'order_types': ['LIMIT', 'MARKET'],
+        'withdrawal': True,
+        'deposit': True,
+        'fees_endpoint': '/user/fee',
+        'balance_endpoint': '/users/me/funds/summaryDesktop',
+        'profile_endpoint': None,
+    },
+    'nobitex': {
+        'spot_trading': True,
+        'otc_trading': False,
+        'websocket': False,
+        'order_types': ['LIMIT', 'MARKET'],
+        'withdrawal': True,
+        'deposit': True,
+    }
+}
+
+# WebSocket Configuration
+WEBSOCKET_SETTINGS = {
+    'ramzinex': {
+        'url': 'wss://websocket.ramzinex.com/websocket',
+        'ping_interval': 25,  # seconds (from documentation)
+        'channels': {
+            'orderbook': 'orderbook:{pair_id}',
+            'trades': 'last-trades:{pair_id}',
+        },
+        'delta_support': True,  # for orderbook diffs
+    },
+    'wallex': {
+        'supported': True,
+        'channels': {
+            'orderbook_buy': '{SYMBOL}@buyDepth',
+            'orderbook_sell': '{SYMBOL}@sellDepth', 
+            'trades': '{SYMBOL}@trade',
+            'market_data': '{SYMBOL}@marketCap',
+        }
+    }
+}
+
+# Error Codes and Messages (from documentation)
+EXCHANGE_ERROR_CODES = {
+    'ramzinex': {
+        200: 'Success',
+        400: 'Invalid request',
+        401: 'Unauthorized - invalid token',
+        404: 'Not found',
+        422: 'Invalid parameters',
+        500: 'Internal server error',
+        503: 'Service unavailable',
+    },
+    'wallex': {
+        200: 'Success',
+        400: 'Bad request',
+        401: 'Invalid API key',
+        402: 'Insufficient wallet balance',
+        403: 'Forbidden',
+        404: 'Path not found',
+        405: 'Method not allowed',
+        409: 'Duplicate order ID',
+        422: 'Invalid values',
+        429: 'Too many requests',
+        500: 'Internal server error',
+        # Wallex order-specific errors
+        1001: 'Price precision not acceptable',
+        1002: 'Quantity precision not acceptable', 
+        1003: 'MARKET orders cannot have price',
+        1004: 'Order quantity below minimum',
+        1005: 'Quantity or sum required',
+        1006: 'Insufficient balance',
+        1007: 'Stop price required',
+        1008: 'Order price required',
+        1009: 'Stop price precision not acceptable',
+        1010: 'Cannot set both quantity and sum',
+        1011: 'Sum precision not acceptable',
+    }
+}
+
+# Security Settings
+EXCHANGE_SECURITY = {
+    'ip_whitelist_required': config('IP_WHITELIST_REQUIRED', default=False, cast=bool),
+    'two_factor_required': config('TWO_FACTOR_REQUIRED', default=False, cast=bool),
+    'api_key_rotation_days': config('API_KEY_ROTATION_DAYS', default=90, cast=int),
+    'max_failed_requests': 5,
+    'lockout_duration': 300,  # seconds
+    'require_iranian_ip_for_withdrawal': True,  # Police regulation
+}
+
+# Trading Pairs Mapping (for cross-exchange arbitrage)
+TRADING_PAIRS_MAPPING = {
+    'BTC/USDT': {
+        'wallex': 'BTCUSDT',
+        'ramzinex': 'BTCUSDT',  # Check actual pair IDs
+        'nobitex': 'BTCUSDT',
+    },
+    'ETH/USDT': {
+        'wallex': 'ETHUSDT', 
+        'ramzinex': 'ETHUSDT',
+        'nobitex': 'ETHUSDT',
+    },
+    'BTC/IRR': {
+        'wallex': 'BTCTMN',
+        'ramzinex': 'BTCIRR',  # Check actual symbols
+        'nobitex': 'BTCIRT',
+    },
+    # Add more pairs as needed
+}
+
+# Monitoring and Alerting
+EXCHANGE_MONITORING = {
+    'health_check_interval': config('HEALTH_CHECK_INTERVAL', default=60, cast=int),
+    'alert_on_downtime': True,
+    'alert_on_rate_limit': True,
+    'alert_on_balance_low': True,
+    'max_response_time': 5000,  # milliseconds
+    'enable_performance_tracking': config('PERFORMANCE_TRACKING', default=True, cast=bool),
+}
+
+
+
 UNFOLD = {
     # Site branding
     "SITE_TITLE": "Crypto Arbitrage Admin",
