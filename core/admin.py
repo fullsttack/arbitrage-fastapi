@@ -119,7 +119,7 @@ class ExchangeAdmin(ModelAdmin):
     """Enhanced Exchange admin with performance metrics."""
     
     list_display = [
-        'name', 'code', 'status_indicator', 'reliability_score_display',
+        'name', 'code', 'reliability_score_display',
         'rate_limit', 'is_active_display', 'trading_pairs_count'
     ]
     list_filter = ['is_active', 'code', 'requires_ip_whitelist']
@@ -166,7 +166,7 @@ class ExchangeAdmin(ModelAdmin):
                 )
         except:
             return format_html(
-                '<span class=" px-2 py-1 rounded-full text-xs font-medium">Unknown</span>'
+                '<span class="bg-red-500 px-2 py-1 rounded-full text-xs font-medium">Unknown</span>'
             )
     
     @display(description="Reliability", ordering="reliability_score")
