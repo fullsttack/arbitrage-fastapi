@@ -67,11 +67,10 @@ DATABASES = {
 # Redis configuration with optimization
 REDIS_URL = config("REDIS_URL", default="redis://localhost:6379/0")
 
-# FIXED: Enhanced cache configuration with better timeouts
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": REDIS_URL,
+        "BACKEND": "django_redis.cache.RedisCache",  # Changed from django.core.cache.backends.redis.RedisCache
+        "LOCATION": config("REDIS_URL", default="redis://localhost:6379/0"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {
@@ -80,13 +79,15 @@ CACHES = {
                 "socket_connect_timeout": 5,
                 "health_check_interval": 30,
             },
+            "IGNORE_EXCEPTIONS": True,  # Don't break on Redis errors
         },
         "KEY_PREFIX": "arbitrage",
         "TIMEOUT": 300,  # 5 minutes default
     },
-    # FIXED: Separate cache for market data (high frequency)
+    
+    # Market data cache (high frequency)
     "market_data": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "BACKEND": "django_redis.cache.RedisCache",  # Changed
         "LOCATION": config("REDIS_MARKET_URL", default="redis://localhost:6379/1"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
@@ -95,21 +96,24 @@ CACHES = {
                 "socket_timeout": 2,
                 "socket_connect_timeout": 2,
             },
+            "IGNORE_EXCEPTIONS": True,
         },
         "KEY_PREFIX": "market",
         "TIMEOUT": 60,  # 1 minute for market data
     },
-    # FIXED: Separate cache for rate limiting
+    
+    # Rate limiting cache (optimized for django-ratelimit)
     "ratelimit": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "BACKEND": "django_redis.cache.RedisCache",  # Changed
         "LOCATION": config("REDIS_RATELIMIT_URL", default="redis://localhost:6379/2"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {
-                "max_connections": 10,
+                "max_connections": 20,
                 "socket_timeout": 1,
                 "socket_connect_timeout": 1,
             },
+            "IGNORE_EXCEPTIONS": True,
         },
         "KEY_PREFIX": "ratelimit",
         "TIMEOUT": 3600,  # 1 hour for rate limits
